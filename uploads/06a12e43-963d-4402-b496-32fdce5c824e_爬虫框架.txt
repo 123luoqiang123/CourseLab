@@ -1,0 +1,21 @@
+import requests
+
+def getHTMLText(url):
+    try:
+        # 发送请求，设置超时30秒，防止卡死
+        r = requests.get(url, timeout=30)
+        # 如果状态码不是200，直接抛出异常
+        print("状态码：", r.status_code)
+        # 我在这里加打印状态码！
+        r.raise_for_status()
+        # 自动识别网页编码，解决乱码
+        r.encoding = r.apparent_encoding
+        # 返回处理好的网页文本
+        return r.text
+    except:
+        # 只要上面任意一步出错，就返回这个提示
+        return "产生异常"
+
+if __name__ == "__main__":
+    url = "http://www.baidu.com"
+    print(getHTMLText(url))
