@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级空间 - CourseLab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .prose h1 { font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827; }
+        .prose h2 { font-size: 1.25rem; font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #374151; }
+        .prose p { margin-bottom: 1rem; color: #4B5563; line-height: 1.6; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 h-screen flex overflow-hidden">
+
+<!-- ==================== 1. 侧边栏模块 (Sidebar) ==================== -->
+<aside class="w-64 bg-white border-r border-gray-200 flex flex-col shrink-0 transition-all z-20">
+    <div class="h-14 flex items-center px-6 border-b border-gray-200">
+        <span class="text-xl font-bold text-gray-900 tracking-tight">CourseLab <span class="text-xs font-medium text-indigo-700 ml-1 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">Student</span></span>
+    </div>
+    <nav class="flex-1 py-6 px-3 space-y-1 overflow-y-auto no-scrollbar" id="sidebar-nav">
+        <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">班级空间</p>
+        <button data-target="panel-grading" class="sidebar-btn w-full flex items-center px-3 py-2 text-sm font-medium rounded-md bg-indigo-50 text-indigo-700 transition outline-none">
+            <span class="mr-3 text-lg">📝</span> 学习大厅
+        </button>
+        <button data-target="panel-tracking" class="sidebar-btn w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition outline-none">
+            <span class="mr-3 text-lg">📊</span> 学情追踪
+        </button>
+
+    </nav>
+    <!-- ========== 左下角用户信息条 ========== -->
+    <div class="border-t border-gray-200 p-4 flex items-center space-x-3 bg-white select-none">
+        <img id="current-user-avatar" src="https://ui-avatars.com/api/?name=Doloris&background=E0E7FF&color=4F46E5&bold=true"
+             class="w-9 h-9 rounded-full border border-gray-200 shadow-sm object-cover">
+        <div class="flex-1 overflow-hidden text-left">
+            <p id="current-user-name" class="text-sm font-bold text-gray-900 truncate">Doloris</p>
+            <p id="current-user-title" class="text-xs text-gray-500 truncate">项目开发员</p>
+        </div>
+        <span class="text-gray-400">⚙️</span>
+    </div>
+</aside>
+
+<!-- 主体内容区 -->
+<main class="flex-1 flex flex-col min-w-0 relative">
+
+    <!-- ==================== 2. 顶部导航栏模块 (Header) ==================== -->
+    <header class="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-10">
+        <div class="flex items-center text-sm text-gray-500" id="header-breadcrumb">
+            <span>班级空间</span> <span class="mx-2">/</span> <span class="text-gray-900 font-medium">学习大厅</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="relative">
+                <input type="text" placeholder="全局搜索..." class="w-64 pl-8 pr-3 py-1.5 bg-gray-50 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white transition">
+                <span class="absolute left-2.5 top-1.5 text-gray-400">🔍</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== 3. 主内容面板模块 (Panels) ==================== -->
+    <!-- 面板 1：学习大厅 -->
+    <div id="panel-grading" class="main-panel flex-1 overflow-auto p-6 bg-gray-50 flex flex-col">
+        <!-- 顶部动态数据看板 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                <div><p class="text-xs font-medium text-gray-500 uppercase">提交人数</p><p id="stat-submit-users" class="text-2xl font-bold text-gray-900 mt-1">0</p></div>
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xl">👥</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                <div><p class="text-xs font-medium text-gray-500 uppercase">通过人数</p><p id="stat-pass-users" class="text-2xl font-bold text-green-600 mt-1">0</p></div>
+                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xl">✅</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                <div><p class="text-xs font-medium text-gray-500 uppercase">提交总数</p><p id="stat-total-subs" class="text-2xl font-bold text-gray-900 mt-1">0</p></div>
+                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-xl">📄</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                <div><p class="text-xs font-medium text-gray-500 uppercase">班级平均分</p><p id="stat-avg-score" class="text-2xl font-bold text-gray-900 mt-1">0</p></div>
+                <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 text-xl">🎯</div>
+            </div>
+        </div>
+
+        <!-- 筛选控制台 -->
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex space-x-2">
+                <!-- 下拉 1：筛选实验 -->
+                <select id="filter-lab-select" class="border border-gray-300 rounded-md text-sm px-3 py-1.5 bg-white text-gray-700 outline-none hover:border-indigo-400 focus:border-indigo-500 transition shadow-sm">
+                    <option value="all">所有实验任务</option>
+                </select>
+                <!-- 下拉 2：筛选状态 -->
+                <select id="filter-ai-select" class="border border-gray-300 rounded-md text-sm px-3 py-1.5 bg-white text-gray-700 outline-none hover:border-indigo-400 focus:border-indigo-500 transition shadow-sm">
+                    <option value="all">所有状态</option>
+                </select>
+                <!-- 下拉 3：筛选收藏 -->
+                <select id="filter-feature-select" class="border border-gray-300 rounded-md text-sm px-3 py-1.5 bg-white text-gray-700 outline-none hover:border-indigo-400 focus:border-indigo-500 transition shadow-sm">
+                    <option value="">所有作品</option>
+                    <option value="featured">已收藏</option>
+                    <option value="unfeatured">未收藏</option>
+                </select>
+            </div>
+
+
+            <!-- 运行ID精准搜索框 -->
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" id="filter-run-id" placeholder="输入运行ID..." class="border border-gray-300 rounded-md text-sm pl-8 pr-3 py-1.5 bg-white text-gray-700 outline-none hover:border-indigo-400 focus:border-indigo-500 transition shadow-sm w-56 placeholder-gray-400">
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex-1 flex flex-col">
+            <div class="overflow-auto flex-1">
+                <table class="w-full text-left border-collapse min-w-[900px]">
+                    <thead class="sticky top-0 bg-gray-50 z-10">
+                    <!-- 对齐优化：给作者、时间、AI预检加上了 pl-8/pl-12 向右微调 -->
+                    <tr class="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider">
+                        <th class="p-4 font-medium w-24">运行ID</th>
+                        <th class="p-4 pl-8 font-medium w-1/5">作者</th>
+                        <th class="p-4 font-medium w-1/4">实验项目</th>
+                        <th class="p-4 pl-12 font-medium">提交时间</th>
+                        <th class="p-4 pl-12 font-medium">AI 预检</th>
+                        <th class="p-4 font-medium text-right w-32">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody class="text-sm divide-y divide-gray-100">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- 面板 2：学情追踪 (双模态精简版) -->
+    <div id="panel-tracking" class="main-panel hidden flex-1 p-6 bg-gray-50 flex-col overflow-hidden">
+
+        <!-- 顶部控制台 -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-xl font-bold text-gray-900">学情追踪大盘</h2>
+                <p class="text-sm text-gray-500 mt-1">实时监控本课程所有学生的学习进度与活跃情况</p>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <!-- 搜索框 (列表模式下常用) -->
+                <div class="relative hidden md:block">
+                    <input type="text" id="tracking-search-input" oninput="filterTrackingStudents()" placeholder="搜索学生姓名或学号..." class="pl-8 pr-3 py-1.5 w-64 bg-white border border-gray-300 rounded-md text-sm focus:outline-none hover:border-indigo-400 focus:border-indigo-500 transition shadow-sm placeholder-gray-400">
+                    <svg class="absolute left-2.5 top-2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+
+                <!-- 🌟 核心：双模态切换开关 -->
+                <div class="bg-gray-200/60 p-1 rounded-lg flex space-x-1 border border-gray-200/50 shadow-inner">
+                    <button id="btn-view-list" onclick="toggleTrackingMode('list')" class="px-4 py-1.5 text-sm font-medium rounded-md bg-white shadow-sm text-indigo-600 transition">
+                        📄 列表视图
+                    </button>
+                    <button id="btn-view-chart" onclick="toggleTrackingMode('chart')" class="px-4 py-1.5 text-sm font-medium rounded-md text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition">
+                        📊 图表分析
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= 模态 1：列表视图 (默认) ================= -->
+        <div id="tracking-mode-list" class="flex-1 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
+            <div class="overflow-auto flex-1">
+                <table class="w-full text-left text-sm border-collapse min-w-[800px]">
+                    <thead class="sticky top-0 bg-gray-50 border-b border-gray-200 text-gray-500 text-xs uppercase z-10">
+                    <tr>
+                        <th class="p-4 font-medium">学生姓名</th>
+                        <th class="p-4 font-medium">学号</th>
+                        <th class="p-4 font-medium">实验完成率</th>
+                        <th class="p-4 font-medium">最近活跃时间</th>
+                        <th class="p-4 font-medium text-right">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tracking-student-tbody" class="divide-y divide-gray-100">
+                    <tr><td colspan="5" class="p-8 text-center text-gray-400">正在加载学生数据...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= 模态 2：图表分析视图 (隐藏) ================= -->
+        <div id="tracking-mode-chart" class="hidden flex-1 flex-col space-y-6 overflow-y-auto pb-4">
+
+            <!-- 顶层数据卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">班级总人数</p>
+                        <h3 class="text-2xl font-bold text-gray-900"><span id="tracking-stat-total">-</span> <span class="text-xs text-gray-400 font-normal">人</span></h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 text-xl">👥</div>
+                </div>
+                <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">平均实验完成率</p>
+                        <h3 class="text-2xl font-bold text-gray-900"><span id="tracking-stat-avg">-</span> <span class="text-xs text-gray-400 font-normal">%</span></h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 text-xl">🎯</div>
+                </div>
+                <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">近7日活跃人数</p>
+                        <h3 class="text-2xl font-bold text-gray-900"><span id="tracking-stat-active">-</span> <span class="text-xs text-gray-400 font-normal">人</span></h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-500 text-xl">🔥</div>
+                </div>
+            </div>
+
+            <!-- 图表区 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-[300px]">
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-5 flex flex-col">
+                    <h3 class="text-sm font-bold text-gray-700 mb-4">各实验项目完成度统计</h3>
+                    <div id="chart-lab-completion" class="flex-1 min-h-[280px]"></div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-5 flex flex-col">
+                    <h3 class="text-sm font-bold text-gray-700 mb-4">近30日学生学习活跃趋势</h3>
+                    <div id="chart-activity-trend" class="flex-1 min-h-[280px]"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</main>
+
+
+
+
+<!-- ==================== 4. 浮层与弹窗模块 (Overlays) ==================== -->
+
+<!-- 侧滑抽屉 (Drawer) 完美保留原有代码并接入真实数据结构 -->
+<div id="review-drawer" class="fixed inset-y-0 right-0 w-[900px] bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col border-l border-gray-200">
+    <div class="h-14 border-b border-gray-200 px-6 flex items-center justify-between bg-white shrink-0">
+        <div class="flex items-center space-x-4">
+            <h2 class="text-lg font-bold text-gray-900">借鉴与欣赏</h2>
+            <button id="btn-feature-star"  title="设为优秀作品" class="text-2xl leading-none text-gray-300 hover:text-yellow-400 transition">☆</button>
+        </div>
+        <button onclick="closeDrawer()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+    </div>
+
+    <div class="flex-1 flex overflow-hidden">
+        <!-- 左侧内容区 -->
+        <div class="w-2/3 border-r border-gray-200 bg-gray-50 flex flex-col">
+            <div class="flex border-b border-gray-200 bg-white px-4 pt-3 space-x-6 text-sm font-medium text-gray-500 shrink-0">
+                <!-- ★ 改名：实验代码，去掉了实验报告 -->
+                <button class="drawer-tab-btn active border-b-2 border-indigo-600 text-indigo-600 pb-2 outline-none transition" data-target="drawer-code">📄 实验代码</button>
+                <button class="drawer-tab-btn border-b-2 border-transparent hover:text-gray-900 pb-2 outline-none transition" data-target="drawer-attachments">📎 附件与网页</button>
+            </div>
+
+            <!-- 实验代码区域 -->
+            <div id="drawer-code" class="drawer-content flex-1 overflow-y-auto bg-white font-mono text-sm text-gray-800 leading-relaxed">
+                <div class="px-4 py-2 border-b border-gray-200 bg-gray-50 text-xs flex justify-between items-center sticky top-0">
+                    <span class="text-gray-500 font-semibold">student_code</span>
+                    <!-- ★ 极其清爽的语言标签，替代了多余的 AI 提示 -->
+                    <span class="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 font-medium" id="drawer-code-language">获取语言中...</span>
+
+                </div>
+                <div class="p-4 overflow-x-auto">
+                    <!-- ★ 存放真实的 code_content -->
+                    <pre><code id="drawer-code-content" class="whitespace-pre-wrap font-mono">加载中...</code></pre>
+                </div>
+
+
+            </div>
+
+            <!-- 附件与网页区域 -->
+            <div id="drawer-attachments" class="drawer-content hidden flex-1 overflow-y-auto p-6 bg-slate-50 flex-col">
+                <div class="mb-6">
+                    <h3 class="text-sm font-bold text-gray-900 mb-2">🔗 部署链接 / 网页地址</h3>
+                    <div class="flex items-center shadow-sm">
+                        <input type="text" id="drawer-web-link" readonly value="未提交链接" class="flex-1 bg-white border border-gray-300 rounded-l-md px-3 py-2 text-sm text-gray-600 focus:outline-none">
+                        <a href="#" id="drawer-web-link-btn" target="_blank" class="bg-indigo-50 border-y border-r border-gray-300 border-l-0 rounded-r-md px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition items-center hidden">访问 ↗️</a>
+                    </div>
+                </div>
+                <hr class="border-gray-200 mb-6">
+                <div class="flex-1">
+                    <h3 class="text-sm font-bold text-gray-900 mb-3" id="drawer-attachment-count">🖼️ 提交附件 (0)</h3>
+                    <div class="space-y-3" id="drawer-attachment-list">
+                        <p class="text-xs text-gray-400">该学生未提交任何文件附件。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧打分与评语区 -->
+        <div class="w-1/3 flex flex-col bg-white">
+            <div class="p-5 flex-1 overflow-y-auto space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-900 mb-2">最终评分</label>
+                    <!-- ★ 存放真实 score -->
+                    <input type="number" id="drawer-score" placeholder="0-100" class="w-full border border-gray-300 rounded-md px-3 py-3 text-2xl font-bold text-center text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-900 mb-2">评语与改进建议</label>
+                    <!-- ★ 存放真实 feedback -->
+                    <textarea id="drawer-feedback" rows="12" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-700" placeholder="AI预检为空，请手动填写评价..."></textarea>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 bg-gray-50 flex justify-end space-x-3 shrink-0">
+                <button onclick="closeDrawer()" class="px-5 py-2 border border-gray-300 rounded-md text-sm text-gray-700 font-medium hover:bg-gray-100 transition">取消</button>
+                <button onclick="restoreFromDrawer()" class="px-5 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 transition shadow-sm">还原环境</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 遮罩 -->
+<div id="drawer-overlay" onclick="closeDrawer()" class="fixed inset-0 bg-gray-900/30 backdrop-blur-sm hidden z-40 transition-opacity opacity-0"></div>
+
+<!-- ★★★ 学生实验档案弹窗 ★★★ -->
+<div id="student-profile-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white w-full max-w-lg rounded-xl shadow-2xl overflow-hidden max-h-[80vh] flex flex-col">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
+            <div>
+                <h3 class="text-lg font-bold text-gray-800"><span id="profile-student-name">-</span> 的实验档案</h3>
+                <p class="text-xs text-gray-400 mt-0.5">仅统计当前已部署的实验</p>
+            </div>
+            <button onclick="closeStudentProfile()" class="text-gray-400 hover:text-gray-600 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <div id="profile-lab-list" class="flex-1 overflow-y-auto">
+            <p class="p-6 text-sm text-gray-400 text-center">加载中...</p>
+        </div>
+        <div class="px-6 py-3 bg-gray-50 border-t border-gray-100 flex justify-end shrink-0">
+            <button onclick="closeStudentProfile()" class="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50 transition">关闭</button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- ==================== 5. 引入 JS (请确保 js/teacher.js 路径正确) ==================== -->
+<script>window.IS_CLASS_CENTER = true;</script>
+<script src="js/teacher.js">
+</script>
+
+</body>
+</html>

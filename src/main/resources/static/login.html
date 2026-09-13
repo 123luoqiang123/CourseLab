@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - CourseLab 教师工作台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+
+<!-- 登录卡片 -->
+<div class="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md border border-gray-100">
+
+    <!-- Logo & 标题 -->
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 mb-4">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14v7"></path>
+            </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900">CourseLab</h1>
+        <p class="text-sm text-gray-500 mt-2">教师工作台 / 课程管理系统</p>
+    </div>
+
+    <!-- 登录表单 -->
+    <form id="loginForm" class="space-y-6">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">账号 (工号/邮箱)</label>
+            <input type="text" id="username" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="请输入教师账号" required>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+            <input type="password" id="password" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="请输入密码" required>
+        </div>
+
+        <!-- 报错提示区 (默认隐藏) -->
+        <div id="error-msg" class="hidden text-sm text-red-500 bg-red-50 p-3 rounded-lg border border-red-100 text-center">
+            账号或密码错误，请重试
+        </div>
+
+        <button type="submit" class="w-full bg-indigo-600 text-white font-medium py-3 rounded-lg hover:bg-indigo-700 transition shadow-md hover:shadow-lg flex justify-center items-center">
+            <span id="btn-text">立即登录</span>
+            <svg id="btn-spinner" class="hidden animate-spin ml-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        </button>
+
+        <p class="text-center text-sm text-gray-500">
+            没有账号？
+            <a href="javascript:void(0)" onclick="switchMode('register')" class="text-indigo-600 hover:text-indigo-700 font-medium">立即注册</a>
+        </p>
+    </form>
+
+    <!-- 注册表单 (默认隐藏) -->
+    <form id="registerForm" class="space-y-6 hidden">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">账号 (工号/邮箱)</label>
+            <input type="text" id="reg-username" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="用于登录，注册后不可修改" required>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">网名 (显示名称)</label>
+            <input type="text" id="reg-name" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="选填，默认与账号相同">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+            <input type="password" id="reg-password" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="至少 6 位" required>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">确认密码</label>
+            <input type="password" id="reg-password2" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="请再次输入密码" required>
+        </div>
+
+        <!-- 注册报错提示区 -->
+        <div id="reg-error-msg" class="hidden text-sm text-red-500 bg-red-50 p-3 rounded-lg border border-red-100 text-center"></div>
+
+        <button type="submit" class="w-full bg-indigo-600 text-white font-medium py-3 rounded-lg hover:bg-indigo-700 transition shadow-md hover:shadow-lg flex justify-center items-center">
+            <span id="reg-btn-text">注册账号</span>
+            <svg id="reg-btn-spinner" class="hidden animate-spin ml-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        </button>
+
+        <p class="text-center text-sm text-gray-500">
+            已有账号？
+            <a href="javascript:void(0)" onclick="switchMode('login')" class="text-indigo-600 hover:text-indigo-700 font-medium">返回登录</a>
+        </p>
+    </form>
+</div>
+
+<script>
+    // ===== 登录/注册表单切换 =====
+    function switchMode(mode) {
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        document.getElementById('error-msg').classList.add('hidden');
+        document.getElementById('reg-error-msg').classList.add('hidden');
+        if (mode === 'register') {
+            loginForm.classList.add('hidden');
+            registerForm.classList.remove('hidden');
+        } else {
+            registerForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+        }
+    }
+
+    // ===== 登录逻辑 (原封不动) =====
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // 阻止页面默认刷新
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const errorMsg = document.getElementById('error-msg');
+        const btnText = document.getElementById('btn-text');
+        const btnSpinner = document.getElementById('btn-spinner');
+
+        // 隐藏错误，显示加载动画
+        errorMsg.classList.add('hidden');
+        btnText.innerText = "登录中...";
+        btnSpinner.classList.remove('hidden');
+
+        // 向后端发送登录请求
+        fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: username, password: password })
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('登录失败');
+                return response.json();
+            })
+            .then(teacherData => {
+                // ✨ 核心魔法：把后端返回的老师信息存在浏览器本地！
+                localStorage.setItem('currentTeacher', JSON.stringify(teacherData));
+
+                // 🚀 核心修改：登录成功，跳转到主页 index.html！
+                window.location.href = 'index.html';
+            })
+            .catch(error => {
+                // 登录失败，恢复按钮状态并显示报错
+                console.error('Error:', error);
+                errorMsg.classList.remove('hidden');
+                btnText.innerText = "立即登录";
+                btnSpinner.classList.add('hidden');
+            });
+    });
+
+    // ===== 注册逻辑 =====
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const username = document.getElementById('reg-username').value.trim();
+        const name = document.getElementById('reg-name').value.trim();
+        const password = document.getElementById('reg-password').value;
+        const password2 = document.getElementById('reg-password2').value;
+        const errorMsg = document.getElementById('reg-error-msg');
+        const btnText = document.getElementById('reg-btn-text');
+        const btnSpinner = document.getElementById('reg-btn-spinner');
+
+        // 前端校验
+        errorMsg.classList.add('hidden');
+        if (password.length < 6) {
+            errorMsg.innerText = "密码至少需要 6 位";
+            errorMsg.classList.remove('hidden');
+            return;
+        }
+        if (password !== password2) {
+            errorMsg.innerText = "两次输入的密码不一致";
+            errorMsg.classList.remove('hidden');
+            return;
+        }
+
+        btnText.innerText = "注册中...";
+        btnSpinner.classList.remove('hidden');
+
+        fetch('/api/teachers/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: username, password: password, name: name })
+        })
+            .then(async response => {
+                const text = await response.text();
+                if (!response.ok) throw new Error(text || '注册失败');
+                // 注册成功：切回登录表单，帮用户填好账号
+                alert("🎉 注册成功！请使用新账号登录");
+                switchMode('login');
+                document.getElementById('username').value = username;
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+            })
+            .catch(error => {
+                errorMsg.innerText = error.message.includes('Failed to fetch') ? "服务器连接失败，请检查后端状态" : error.message;
+                errorMsg.classList.remove('hidden');
+            })
+            .finally(() => {
+                btnText.innerText = "注册账号";
+                btnSpinner.classList.add('hidden');
+            });
+    });
+</script>
+</body>
+</html>

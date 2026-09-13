@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Streamlit 作品预览 - CourseLab</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/browser@0.86.0/build/stlite.css" />
+</head>
+<body>
+<div id="root">
+    <div style="font-family:sans-serif;text-align:center;padding-top:100px;color:#888">
+        ⏳ 正在浏览器中启动 Streamlit 应用，首次加载约 10-30 秒，请稍候...
+    </div>
+</div>
+<script type="module">
+    import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@0.86.0/build/stlite.js";
+    const payload = JSON.parse(localStorage.getItem('stlite_payload') || '{}');
+    if (!payload.code) {
+        document.getElementById('root').innerHTML =
+            '<p style="text-align:center;padding-top:100px;color:#f87171">没有收到代码，请回到实验工作区点击「运行代码」</p>';
+    } else {
+        mount({
+            requirements: payload.pkgs || [],
+            entrypoint: "app.py",
+            files: { "app.py": payload.code }
+        }, document.getElementById("root"));
+    }
+</script>
+</body>
+</html>

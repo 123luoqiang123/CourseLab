@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta name="referrer" content="no-referrer">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程详情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+        /* ===== 全局细滚动条（浮于内容上方） ===== */
+* {
+    scrollbar-width: thin;                       /* Firefox + Chrome 121+ */
+    scrollbar-color: rgba(0,0,0,0.25) transparent;
+}
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+*::-webkit-scrollbar-track {
+    background: transparent;                     /* 轨道透明，内容透出来 */
+}
+*::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.2);                 /* 半透明，浮在内容上 */
+    border-radius: 4px;                          /* 圆角，更细腻 */
+}
+*::-webkit-scrollbar-thumb:hover {
+    background: rgba(0,0,0,0.35);
+}
+
+html {
+    scrollbar-gutter: stable;
+}
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+<!-- 顶部极简导航 -->
+<nav class="bg-white border-b border-gray-200 h-14 flex items-center px-6 justify-between shrink-0 sticky top-0 z-50">
+    <div class="flex items-center space-x-4">
+        <a href="index.html" class="text-gray-500 hover:text-indigo-600 flex items-center text-sm transition">
+            <span class="mr-1">←</span> 返回资源库
+        </a>
+        <div class="h-4 w-px bg-gray-300"></div>
+        <span id="nav-course-title" class="text-sm font-bold text-gray-900">加载中...</span>
+    </div>
+    <a id="btn-class-center" href="#" class="hidden text-gray-500 hover:text-indigo-600 flex items-center text-sm transition">
+        前往班级空间 <span class="ml-1">→</span>
+    </a>
+</nav>
+
+<!-- 主体内容区 -->
+<main class="flex-1 max-w-6xl mx-auto w-full p-6 lg:p-8">
+
+    <!-- 头部：课程信息与视频预览 (Hero Section) -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8 flex flex-col lg:flex-row">
+
+        <div id="video-container" class="lg:w-2/3 bg-slate-900 relative flex items-center justify-center min-h-[300px] overflow-hidden">
+            <!-- 默认占位：JS 会在拿到章节数据后决定显示第一个视频还是空提示 -->
+            <div id="video-empty-tip" class="absolute inset-0 flex items-center justify-center">
+                <div class="absolute inset-0 bg-gradient-to-br from-slate-800 to-indigo-900 opacity-80"></div>
+                <span class="relative z-10 text-white/50 text-sm">加载中...</span>
+            </div>
+        </div>
+
+        <!-- 右侧：核心信息 -->
+        <div class="lg:w-1/3 p-6 flex flex-col justify-between">
+            <div>
+                <!-- 动态标签容器 -->
+                <div id="course-tags-container" class="flex items-center flex-wrap gap-2 mb-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs px-2 py-1 rounded font-medium">加载中...</span>
+                </div>
+                <h1 id="main-course-title" class="text-xl font-bold text-gray-900 mb-2">加载中...</h1>
+                <p id="main-course-desc" class="text-sm text-gray-500 mb-4 line-clamp-3">正在从数据库获取课程简介...</p>
+
+                <!-- 动态讲师信息 -->
+                <div class="flex items-center space-x-3 mb-6">
+                    <img id="teacher-avatar" src="https://ui-avatars.com/api/?name=师&background=random" class="w-10 h-10 rounded-full">
+                    <div>
+                        <p id="teacher-name" class="text-sm font-bold text-gray-900">加载中...</p>
+                        <p id="teacher-title" class="text-xs text-gray-500">...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-gray-100">
+
+                <button id="join-course-btn" onclick="toggleCourse()" disabled class="w-full py-2.5 border border-transparent bg-gray-50 text-gray-400 rounded-lg text-sm font-bold transition shadow-sm cursor-wait">
+                    状态检查中...
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="flex border-b border-gray-200 px-6 mt-2">
+            <button data-tab="tab-intro" class="tab-btn active text-sm font-medium py-4 px-4 text-indigo-600 border-b-2 border-indigo-600 outline-none">课程介绍</button>
+            <button data-tab="tab-videos" id="tab-btn-videos" class="tab-btn text-sm font-medium py-4 px-4 text-gray-500 hover:text-gray-900 outline-none border-b-2 border-transparent">视频课件</button>
+            <button data-tab="tab-labs" id="tab-btn-labs" class="tab-btn text-sm font-medium py-4 px-4 text-gray-500 hover:text-gray-900 outline-none border-b-2 border-transparent">实验任务</button>
+        </div>
+
+        <div class="p-6">
+            <div id="tab-intro" class="tab-content block">
+                <h3 class="text-lg font-bold mb-4 text-gray-900">课程概述</h3>
+                <div id="course-detail-intro" class="text-sm text-gray-600 leading-relaxed space-y-4">
+                    <p>正在加载真实的课程详细介绍...</p>
+                </div>
+            </div>
+
+            <div id="tab-videos" class="tab-content hidden">
+                <div class="space-y-4">
+                    <div class="text-gray-500 text-sm">正在加载章节列表...</div>
+                </div>
+            </div>
+
+            <div id="tab-labs" class="tab-content hidden">
+                <div id="course-labs-list" class="space-y-4">
+                    <div class="text-gray-500 text-sm">正在加载实验任务列表...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- 交互逻辑区 -->
+<script>
+    let defaultVideoUrl = "";
+
+    // 1. Tab 切换逻辑
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabBtns.forEach(b => {
+                b.classList.remove('text-indigo-600', 'border-indigo-600', 'active');
+                b.classList.add('text-gray-500', 'border-transparent');
+            });
+            btn.classList.remove('text-gray-500', 'border-transparent');
+            btn.classList.add('text-indigo-600', 'border-indigo-600', 'active');
+
+            const targetId = btn.getAttribute('data-tab');
+
+            // ★★★ 核心修改 1/2：每次点击 Tab，将状态保存到浏览器会话中 ★★★
+            sessionStorage.setItem('course_detail_active_tab', targetId);
+
+            tabContents.forEach(content => {
+                if(content.id === targetId) {
+                    content.classList.remove('hidden');
+                    content.classList.add('block');
+                } else {
+                    content.classList.remove('block');
+                    content.classList.add('hidden');
+                }
+            });
+        });
+    });
+
+    const BACKEND_ORIGIN = '';
+
+    function resolveVideoUrl(videoUrl) {
+        // 本地上传的视频存的是相对路径 /videos/xxx.mp4，必须拼上后端地址才能访问
+        if (videoUrl && videoUrl.startsWith('/')) {
+            return BACKEND_ORIGIN + videoUrl;
+        }
+        return videoUrl;
+    }
+
+    function renderPlayer(videoUrl, autoplay = true) {
+        const videoContainer = document.getElementById('video-container');
+        if (!videoContainer) return;
+
+        if (!videoUrl) {
+            videoContainer.innerHTML = `
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="absolute inset-0 bg-gradient-to-br from-slate-800 to-indigo-900 opacity-80"></div>
+                        <span class="relative z-10 text-white/50 text-sm">本课程暂无视频课件</span>
+                    </div>
+                `;
+            return;
+        }
+
+        videoContainer.innerHTML = '';
+
+        if (videoUrl.includes('bilibili.com') || videoUrl.includes('player.html')) {
+            // B站内嵌播放，保持原逻辑不动
+            videoContainer.innerHTML = `
+                    <iframe src="${videoUrl}"
+                            scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"
+                            class="absolute inset-0 w-full h-full z-20">
+                    </iframe>
+                `;
+        } else {
+            // 本地上传视频：拼后端地址 + 原生 video 播放器
+            const realUrl = resolveVideoUrl(videoUrl);
+            videoContainer.innerHTML = `
+                    <video controls ${autoplay ? 'autoplay' : 'preload="metadata"'} controlsList="nodownload"
+                           class="absolute inset-0 w-full h-full z-20 bg-black" style="object-fit: contain;">
+                        <source src="${realUrl}" type="video/mp4">
+                        您的浏览器不支持视频播放。
+                    </video>
+                `;
+        }
+    }
+
+    window.switchVideo = function(videoUrl) {
+        renderPlayer(videoUrl, true); // 从章节列表点进来的，直接播放
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    function playRealVideo() {
+        // 保留函数避免旧调用报错（封面已移除，正常不会再被触发）
+        renderPlayer(typeof defaultVideoUrl !== 'undefined' ? defaultVideoUrl : '', true);
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const courseId = urlParams.get('id') || 1;
+
+    // --- ★★★ 动态选课/退课逻辑 ★★★ ---
+    let isJoined = false;
+
+    function checkJoinStatus() {
+        const userDataStr = localStorage.getItem('currentTeacher');
+        const userData = userDataStr ? JSON.parse(userDataStr) : null;
+        if (!userData) {
+            updateBtnUI(false);
+            return;
+        }
+
+        fetch(`/users/${userData.id}/check-course/${courseId}`)
+            .then(res => res.json())
+            .then(joined => {
+                isJoined = joined;
+                updateBtnUI(true);
+            })
+            .catch(err => {
+                console.error("检查加入状态失败:", err);
+                updateBtnUI(true);
+            });
+    }
+
+    function updateBtnUI(isLoggedIn) {
+        const btn = document.getElementById('join-course-btn');
+        btn.disabled = false;
+
+        btn.className = "w-full py-2.5 border rounded-lg text-sm font-bold transition shadow-sm ";
+
+        if (!isLoggedIn) {
+            btn.innerText = "请先登录";
+            btn.className += "border-transparent bg-gray-100 text-gray-500";
+            return;
+        }
+
+        if (isJoined) {
+            btn.innerText = "已加入课程";
+            btn.className += "border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-200 hover:text-gray-700 hover:border-gray-300";
+        } else {
+            btn.innerText = "加入课程";
+            btn.className += "border-transparent bg-indigo-600 text-white hover:bg-indigo-700";
+        }
+    }
+
+    function toggleCourse() {
+        const userDataStr = localStorage.getItem('currentTeacher');
+        const userData = userDataStr ? JSON.parse(userDataStr) : null;
+
+        if (!userData) {
+            alert("请先登录！");
+            window.location.href = "login.html";
+            return;
+        }
+
+        const btn = document.getElementById('join-course-btn');
+        btn.disabled = true;
+        btn.innerText = "处理中...";
+
+        if (isJoined) {
+            fetch(`/users/${userData.id}/leave-course/${courseId}`, {
+                method: 'DELETE'
+            }).then(() => {
+                isJoined = false;
+                updateBtnUI(true);
+            }).catch(err => {
+                console.error("退课失败:", err);
+                updateBtnUI(true);
+            });
+        } else {
+            fetch(`/users/${userData.id}/join-course/${courseId}`, {
+                method: 'POST'
+            }).then(() => {
+                isJoined = true;
+                updateBtnUI(true);
+            }).catch(err => {
+                console.error("加入失败:", err);
+                updateBtnUI(true);
+            });
+        }
+    }
+    // ---------------------------------
+
+    // --- 核心网络请求开始 ---
+    fetch('/courses')
+        .then(response => response.json())
+        .then(data => {
+
+            if(data && data.length > 0) {
+                let currentCourse = data.find(c => c.id == courseId) || data[0];
+                // ★ 私有课显示"前往班级空间"入口（必须放在 currentCourse 之后）
+                const cType = currentCourse.courseType || currentCourse.course_type;
+                if (cType !== 'public') {
+                    const btn = document.getElementById('btn-class-center');
+                    btn.href = `student.html?courseId=${currentCourse.id}`;
+                    btn.classList.remove('hidden');
+                }
+
+                document.getElementById('nav-course-title').innerText = currentCourse.title || '无标题课程';
+                document.getElementById('main-course-title').innerText = currentCourse.title || '无标题课程';
+                document.getElementById('main-course-desc').innerText = currentCourse.description || '暂无精简说明';
+
+                const tagsStr = currentCourse.tags || '暂无标签';
+                const tagsArr = tagsStr.split(',').filter(t => t.trim() !== '');
+                const styleClasses = [
+                    'bg-indigo-50 text-indigo-700',
+                    'bg-emerald-50 text-emerald-700',
+                    'bg-blue-50 text-blue-700'
+                ];
+                let tagsHtml = '';
+                tagsArr.forEach((tag, idx) => {
+                    const style = styleClasses[idx % styleClasses.length];
+                    tagsHtml += `<span class="${style} text-xs px-2 py-1 rounded font-medium">${tag.trim()}</span>`;
+                });
+                document.getElementById('course-tags-container').innerHTML = tagsHtml || `<span class="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded">无标签</span>`;
+
+                const teacher = currentCourse.teacher || {};
+                const tName = teacher.name || currentCourse.teacher_name || '佚名讲师';
+                const tTitle = teacher.title || currentCourse.teacher_title || '暂无头衔';
+                const tAvatar = teacher.avatar || currentCourse.teacher_avatar || `https://ui-avatars.com/api/?name=${tName.charAt(0)}&background=random`;
+
+                document.getElementById('teacher-name').innerText = tName;
+                document.getElementById('teacher-title').innerText = tTitle;
+                document.getElementById('teacher-avatar').src = tAvatar;
+
+                const pureIntro = currentCourse.course_intro || currentCourse.courseIntro;
+                if (pureIntro && pureIntro.trim() !== '') {
+                    document.getElementById('course-detail-intro').innerHTML = `
+                            <div class="whitespace-pre-line leading-relaxed text-gray-700">
+                                ${pureIntro}
+                            </div>
+                        `;
+                } else {
+                    document.getElementById('course-detail-intro').innerHTML = `<p class="text-gray-400 italic">暂无详细介绍...</p>`;
+                }
+            }
+        })
+        .catch(error => console.error("抓取课程数据报错:", error));
+
+    fetch(`/courses/${courseId}/chapters`)
+        .then(res => res.json())
+        .then(chapters => {
+            const tabVideos = document.getElementById('tab-videos');
+            const tabBtnVideos = document.getElementById('tab-btn-videos');
+
+            if(chapters && chapters.length > 0) {
+                tabBtnVideos.innerText = `视频课件 (${chapters.length})`;
+                let html = `
+                        <div class="space-y-4">
+                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <div class="bg-gray-50 px-4 py-3 font-bold text-sm text-gray-900 border-b border-gray-200">视频章节列表</div>
+                                <div class="divide-y divide-gray-100">
+                    `;
+                chapters.forEach((chapter, index) => {
+                    const vUrl = chapter.videoUrl || chapter.video_url || '';
+                    html += `
+                            <div onclick="switchVideo('${vUrl}')" class="flex items-center justify-between px-4 py-3 hover:bg-indigo-50 cursor-pointer transition">
+                                <div class="flex items-center text-sm text-gray-700">
+                                    <span class="text-indigo-600 mr-3">▶</span> ${index + 1}. ${chapter.title}
+                                </div>
+                            </div>
+                        `;
+                });
+                html += `</div></div></div>`;
+                tabVideos.innerHTML = html;
+
+                // ★ 首屏：默认加载第一个视频，暂停状态（不自动播放）
+                const firstUrl = chapters[0].videoUrl || chapters[0].video_url || '';
+                renderPlayer(firstUrl, false);
+            } else {
+                tabBtnVideos.innerText = `视频课件 (0)`;
+                tabVideos.innerHTML = `<div class="text-gray-500 p-4 text-center border rounded-lg bg-gray-50">本课程暂未上传视频章节</div>`;
+                // ★ 无视频时低调提示
+                renderPlayer(null);
+            }
+        })
+        .catch(err => {
+            console.error("获取章节失败", err);
+            renderPlayer(null);
+        });
+
+    fetch(`/courses/${courseId}/labs`)
+        .then(response => response.json())
+        .then(allLabs => {
+            const labs = (allLabs || []).filter(lab => lab.status == 1);
+
+            const labListContainer = document.getElementById('course-labs-list');
+            const tabBtnLabs = document.getElementById('tab-btn-labs');
+
+            if (labs && labs.length > 0) {
+                if (tabBtnLabs) tabBtnLabs.innerText = `实验任务 (${labs.length})`;
+
+                let labHTML = '';
+                labs.forEach((lab, index) => {
+                    const title = lab.lab_title || lab.title || `实验任务 ${index + 1}`;
+                    const desc = lab.lab_description || lab.description || '暂无描述';
+
+                    labHTML += `
+                            <a href="workspace.html?labId=${lab.id}" class="block p-4 border border-gray-200 rounded-lg hover:shadow-md hover:border-indigo-300 transition-all bg-white">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-800">${title}</h3>
+                                        <p class="text-sm text-gray-500 mt-1">${desc}</p>
+                                    </div>
+                                    <div class="text-indigo-600">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </a>
+                        `;
+                });
+                if (labListContainer) labListContainer.innerHTML = labHTML;
+            } else {
+                if (tabBtnLabs) tabBtnLabs.innerText = `实验任务 (0)`;
+                if (labListContainer) {
+                    labListContainer.innerHTML = `<div class="text-gray-500 p-4 text-center border border-dashed border-gray-300 rounded-lg bg-gray-50">本课程暂未发布实验任务</div>`;
+                }
+            }
+        })
+        .catch(err => console.error("获取实验列表失败", err));
+
+    document.addEventListener('DOMContentLoaded', () => {
+        checkJoinStatus();
+
+        // ★★★ 核心修改 2/2：页面加载时读取存储的状态，自动触发点击恢复 Tab ★★★
+        const savedTabId = sessionStorage.getItem('course_detail_active_tab');
+        if (savedTabId) {
+            const targetBtn = document.querySelector(`.tab-btn[data-tab="${savedTabId}"]`);
+            if (targetBtn) {
+                targetBtn.click(); // 直接模拟点击，完美复用之前的切换逻辑！
+            }
+        }
+    });
+
+</script>
+</body>
+</html>

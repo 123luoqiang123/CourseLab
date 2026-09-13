@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourseLab - 课程编辑器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 h-screen flex overflow-hidden">
+
+<!-- ================= 统一左侧导航栏 ================= -->
+<aside class="w-64 bg-white border-r border-gray-200 flex flex-col shrink-0 transition-all z-20">
+    <div class="h-14 flex items-center px-6 border-b border-gray-200">
+        <span class="text-xl font-bold text-gray-900 tracking-tight">CourseLab <span class="text-xs font-medium text-indigo-700 ml-1 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">Editor</span></span>
+    </div>
+
+    <nav class="flex-1 py-6 px-3 space-y-1 overflow-y-auto no-scrollbar" id="sidebar-nav">
+        <!-- 返回教师中心 -->
+        <a href="teacher.html" class="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition outline-none mb-6">
+            <span class="mr-3 text-lg">⬅️</span> 返回教师中心
+        </a>
+
+        <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">课程配置</p>
+        <button data-target="panel-basic" class="sidebar-btn active w-full flex items-center px-3 py-2 text-sm font-medium rounded-md bg-indigo-50 text-indigo-700 transition outline-none">
+            <span class="mr-3 text-lg">📝</span> 基础信息
+        </button>
+        <button data-target="panel-video" class="sidebar-btn w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition outline-none">
+            <span class="mr-3 text-lg">🎦</span> 视频章节
+        </button>
+        <button data-target="panel-lab" class="sidebar-btn w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition outline-none">
+            <span class="mr-3 text-lg">💻</span> 实验任务
+        </button>
+    </nav>
+
+    <div class="p-4 border-t border-gray-200 flex items-center space-x-3 hover:bg-gray-50 cursor-pointer transition">
+        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm border border-indigo-200">W</div>
+        <div class="flex-1 overflow-hidden text-left">
+            <p class="text-sm font-semibold text-gray-900 truncate">王教授</p>
+            <p class="text-xs text-gray-500 truncate">数据科学系</p>
+        </div>
+    </div>
+</aside>
+
+<!-- ================= 右侧主内容区 ================= -->
+<main class="flex-1 flex flex-col min-w-0 relative">
+    <header class="h-14 border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-10 bg-white">
+        <div class="flex items-center text-sm font-medium text-gray-600" id="header-title">课程配置 / 基础信息</div>
+        <div class="flex items-center space-x-4">
+            <span class="text-xs text-gray-400">已自动保存草稿</span>
+            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-md text-sm font-medium transition shadow-sm">
+                发布课程更新
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 overflow-y-auto overflow-x-hidden p-8">
+
+        <!-- 模块一：基础信息 (去掉了 mx-auto，改为靠左，并限定最大宽度) -->
+        <div id="panel-basic" class="main-panel max-w-3xl block">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <h2 class="text-lg font-bold text-gray-900 mb-6 border-b pb-4">编辑课程基础信息</h2>
+
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">课程标题 <span class="text-red-500">*</span></label>
+                            <input type="text" id="edit-title" class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" placeholder="例如：Python 人工智能实战">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">课程标签 (Tags)</label>
+                            <input type="text" id="edit-tags" class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" placeholder="多个标签用逗号分隔，如：AI, Python">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">一句话简介 (Description) <span class="text-red-500">*</span></label>
+                        <input type="text" id="edit-desc" class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" placeholder="在卡片上展示的简短说明">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">详细介绍 (Course Intro)</label>
+                        <textarea id="edit-intro" rows="8" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" placeholder="支持长文本换行，详细描述课程大纲和受众..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块二：视频章节 -->
+        <div id="panel-video" class="main-panel max-w-4xl hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">视频章节管理</h2>
+                <button class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-md text-sm font-medium transition shadow-sm">
+                    + 添加新章节
+                </button>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm mb-4">
+                <div class="flex items-center justify-between border-b pb-4 mb-4">
+                    <h3 class="font-bold text-gray-800">章节 1：先导课</h3>
+                    <div class="space-x-2">
+                        <button class="text-indigo-600 text-sm hover:underline">编辑</button>
+                        <button class="text-red-500 text-sm hover:underline">删除</button>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mb-2">视频链接：<span class="text-gray-400">https://player.bilibili.com/...</span></p>
+                <p class="text-sm text-gray-500">排序：1</p>
+            </div>
+
+            <div class="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center bg-gray-50">
+                <p class="text-gray-500 text-sm">暂无更多章节，点击右上角添加。</p>
+            </div>
+        </div>
+
+        <!-- 模块三：实验任务 -->
+        <div id="panel-lab" class="main-panel max-w-4xl hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">实验任务管理</h2>
+                <button class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-md text-sm font-medium transition shadow-sm">
+                    + 添加新实验
+                </button>
+            </div>
+
+            <div class="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center bg-gray-50">
+                <p class="text-gray-500 text-sm mb-4">本课程尚未配置在线实验任务。</p>
+                <button class="bg-indigo-50 text-indigo-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-100 transition">立即配置</button>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script>
+    // 侧边栏导航切换逻辑
+    const sidebarBtns = document.querySelectorAll('.sidebar-btn');
+    const mainPanels = document.querySelectorAll('.main-panel');
+    const headerTitle = document.getElementById('header-title');
+
+    const moduleMap = {
+        'panel-basic': '课程配置 / 基础信息',
+        'panel-video': '课程配置 / 视频章节',
+        'panel-lab': '课程配置 / 实验任务'
+    };
+
+    sidebarBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            sidebarBtns.forEach(b => b.className = "sidebar-btn w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition outline-none");
+            this.className = "sidebar-btn active w-full flex items-center px-3 py-2 text-sm font-medium rounded-md bg-indigo-50 text-indigo-700 transition outline-none";
+
+            mainPanels.forEach(panel => { panel.classList.add('hidden'); panel.classList.remove('block'); });
+            const targetId = this.getAttribute('data-target');
+            document.getElementById(targetId).classList.remove('hidden');
+            document.getElementById(targetId).classList.add('block');
+
+            headerTitle.innerText = moduleMap[targetId];
+        });
+    });
+</script>
+</body>
+</html>
