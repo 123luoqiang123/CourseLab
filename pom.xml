@@ -61,6 +61,20 @@
 			<!-- 版本由 spring-boot-starter-parent 统一管理，此处可不指定 -->
 		</dependency>
 
+		<!-- 阿里云 OSS SDK -->
+		<dependency>
+			<groupId>com.aliyun.oss</groupId>
+			<artifactId>aliyun-sdk-oss</artifactId>
+			<version>3.17.4</version>
+		</dependency>
+	<!-- 解决 Java 9+ 版本运行阿里云 SDK 可能报错的问题 -->
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.1</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
